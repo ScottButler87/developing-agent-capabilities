@@ -104,14 +104,14 @@ A marketplace entry's `name` is independent of both the directory and `plugin.js
 
 `marketplace.json` is a hard prerequisite for `/plugin marketplace add <owner>/<repo>` — without it, a user has to clone the repo or use `--plugin-dir` no matter how they found it. So any public posture ships `marketplace.json`; the postures differ only in how actively the repo is promoted:
 
-- **Deferred** — private, or not yet meant for anyone else. No `marketplace.json`. Still fully usable by the maintainer via a skills-directory symlink or `claude plugin init` (persistent, no marketplace) or `--plugin-dir` (one-off) — see the README. Fits a personal or meta-scoped repo.
+- **Deferred** — private, or not yet meant for anyone else. No `marketplace.json`. Still fully usable by the maintainer via a skills-directory symlink (persistent, no marketplace) or `--plugin-dir` (one-off) — see the README. Fits a personal or meta-scoped repo.
 - **Published** — public, `marketplace.json` present, install commands documented:
   ```
   /plugin marketplace add <owner>/<repo>
   /plugin install <plugin-name>@<marketplace-name>
   ```
   `<marketplace-name>` is `marketplace.json`'s own `name` field, not `<owner>/<repo>` — the two commands use different identifiers on purpose. Cross-linking it from wherever the user keeps an index of domain repos is a promotion choice within this posture, not a separate posture.
-- **Community submission** — additionally submit to Anthropic's community marketplace (`platform.claude.com/plugins/submit`) once stable. Requires `claude plugin validate --strict` to pass first; pins the plugin to a commit SHA in `anthropics/claude-plugins-community`, auto-bumped on push; install afterward with `/plugin install <plugin-name>@claude-community`.
+- **Community submission** — additionally submit to Anthropic's community marketplace (`platform.claude.com/plugins/submit`) once stable. Requires `claude plugin validate --strict .` to pass first; pins the plugin to a commit SHA in `anthropics/claude-plugins-community`, auto-bumped on push; install afterward with `/plugin install <plugin-name>@claude-community`.
 
 ## Community-ready additions
 

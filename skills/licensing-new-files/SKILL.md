@@ -10,7 +10,7 @@ Scope: how to categorize one specific file's license and resolve a `reuse lint` 
 
 ## A `reuse lint` failure is the system working, not a bug to silence
 
-A file that doesn't match any `REUSE.toml` annotation isn't "unprotected" — it reverts to ordinary default copyright (all rights reserved), which is *more* restrictive than intended, not a permissive gap. `reuse lint` failing on it is exactly the signal that a real categorization decision is needed. **Never fix this by adding a catch-all** (`path = ["**"]`): a catch-all makes every file compliant by definition, which means `reuse lint` can never again flag a new file type that needs a real decision — it silently inherits whatever the catch-all says, correct or not. This repo's own `REUSE.toml` had a catch-all at one point specifically to make CI pass, and it was wrong for exactly this reason.
+A file that doesn't match any `REUSE.toml` annotation isn't "unprotected" — it reverts to ordinary default copyright (all rights reserved), which is *more* restrictive than intended, not a permissive gap. `reuse lint` failing on it is exactly the signal that a real categorization decision is needed. **Never fix this by adding a catch-all** (`path = ["**"]`): a catch-all makes every file compliant by definition, which means `reuse lint` can never again flag a new file type that needs a real decision — it silently inherits whatever the catch-all says, correct or not. An earlier draft of this repo's own `REUSE.toml` had a catch-all, added to make a local `reuse lint` check pass quickly — caught and removed before ever being committed, and wrong for exactly this reason.
 
 ## Deciding a file's category
 
