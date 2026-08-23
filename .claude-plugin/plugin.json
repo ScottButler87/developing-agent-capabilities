@@ -1,6 +1,6 @@
 {
   "name": "developing-ai-capabilities",
-  "description": "Conventions and scaffolding for organizing Claude Code skills into domain repos — repo/subdomain/skill structure and dependencies, where new knowledge belongs, naming/trigger/frontmatter conventions for individual skills, and per-file licensing.",
+  "description": "Conventions for organizing Claude Code skills into git repos — how domain knowledge is structured, grown, and opened to community contribution. See each skill's own description, or this plugin's install view, for what's actually here.",
   "version": "0.1.0",
   "author": {
     "name": "Scott"
