@@ -1,12 +1,10 @@
 ---
 name: licensing-new-files
 license: CC-BY-SA-4.0
-description: Categorizes an individual file's license (AGPL vs CC-BY-SA) and fixes a failing `reuse lint`/CI license check — the REUSE.toml mechanics, the pitfalls (never a catch-all, glob by location not extension for ambiguous formats like JSON/YAML, use `**/` not root-anchored paths, verify with real file content), and what to do when a new file type doesn't match any existing annotation. Use when adding a file that isn't obviously covered by the existing REUSE.toml — a skill's reference file, extracted data, a new script — or when `reuse lint`/CI fails on a license check. Do not use for the initial decision of which licenses a domain repo uses at all (see structuring-domain-repos) or for setting a skill's own `license:` frontmatter field (see authoring-domain-skills).
+description: Categorizes an individual file's license (AGPL vs CC-BY-SA) and fixes a failing `reuse lint`/CI license check — the REUSE.toml mechanics, the pitfalls (never a catch-all, glob by location not extension for ambiguous formats like JSON/YAML, use `**/` not root-anchored paths, verify with real file content), and what to do when a new file type doesn't match any existing annotation. Use when adding a file that isn't obviously covered by the existing REUSE.toml — a skill's reference file, extracted data, a new script — or when `reuse lint`/CI fails on a license check.
 ---
 
 # Licensing new files
-
-Scope: how to categorize one specific file's license and resolve a `reuse lint` failure, wherever that need comes from — bootstrapping a repo, authoring a skill, or a bare CI failure with no other task in progress. For why a domain repo uses AGPL/CC-BY-SA at all and the starting `REUSE.toml`, see [structuring-domain-repos](../structuring-domain-repos/SKILL.md). For a skill's own `license:` frontmatter field, see [authoring-domain-skills](../authoring-domain-skills/SKILL.md).
 
 ## A `reuse lint` failure is the system working, not a bug to silence
 

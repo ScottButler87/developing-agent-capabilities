@@ -1,12 +1,10 @@
 ---
 name: authoring-domain-skills
 license: CC-BY-SA-4.0
-description: Naming, trigger-writing, and frontmatter conventions for an individual SKILL.md — a two-lane naming rule (gerund-verb for procedures vs. noun-phrase for background/orientation knowledge), a required negative-trigger clause, a ban on scaffolded "when to use" text, and where custom frontmatter fields belong. Use when reviewing an existing skill's quality, or once a skill's placement is already settled and it's time to write its name, description, or frontmatter. Do not use for deciding where a new skill belongs (see placing-new-skills), how the repo/plugin/marketplace is structured (see structuring-domain-repos), or categorizing a supporting file's license (see licensing-new-files).
+description: Naming, trigger-writing, and frontmatter conventions for an individual SKILL.md — a two-lane naming rule (gerund-verb for procedures vs. noun-phrase for background/orientation knowledge), why cross-skill routing belongs in the body and not the description, a ban on scaffolded "when to use" text, and where custom frontmatter fields belong. Use when reviewing an existing skill's quality, or once a skill's placement is already settled and it's time to write its name, description, or frontmatter.
 ---
 
 # Authoring domain skills
-
-Scope: conventions specific to this system, layered on top of — not duplicating — [the Skill authoring best practices doc](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices), which stays the primary reference for progressive disclosure, degrees of freedom, evaluations, and everything else about writing a good skill. This skill covers only what that doc doesn't, learned from comparing against a real, large, community-contributed reference implementation ([mukul975/Anthropic-Cybersecurity-Skills](https://github.com/mukul975/Anthropic-Cybersecurity-Skills)).
 
 ## Naming: two lanes, not one
 
@@ -15,9 +13,11 @@ Scope: conventions specific to this system, layered on top of — not duplicatin
 
 The test: if the honest answer to "what does this skill do" is a verb, gerund it. If the honest answer is "it's context," name it as what it is.
 
-## Required: a negative-trigger clause in the description
+## Cross-skill routing belongs in the body, not the description
 
-Every skill's `description` states what it's *not* for and which sibling skill to use instead — e.g. "Do not use for save-file analysis (see parsing-save-files)." The description, not the body, is what Claude matches against for discovery, so that's where the negative trigger has to live to do its job. This is the cheapest available fix for skill misfire, and it doubles as machine-readable routing between sibling skills, which matters more once skills are split across plugin boundaries. This skill's own description is the worked example.
+Don't put "do not use for X, see sibling-skill" clauses in a `description`. There's no evidence this pattern earns its keep, and good reason to think it doesn't: [the official best-practices doc](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) never uses it, its prescribed fix for selection ambiguity is "be specific and include key terms" (a positive-content fix, not a negation), and it states plainly that *all* installed skills' `name`+`description` are pre-loaded into the system prompt together, permanently, for every session — "the context window is a public good," every token there competes forever, whether or not the disambiguation it's buying ever actually mattered.
+
+A redirect belongs inline, at the specific point in the body where the need for it actually arises — a step that hands off to a sibling skill's territory — not in a centralized summary near the top. This system used to open every skill's body with a `Scope:` line restating its sibling pointers; checked against this repo's own four skills, that line was either a verbatim duplicate of a pointer already sitting inline at its real trigger point, or had no inline trigger point anywhere in the body at all — meaning nothing ever actually needed it, the same tell that killed the description-level version. Both cases are gone now: an inline pointer earns its place by corresponding to a real step in the procedure; if no such step exists, the pointer doesn't belong in this skill's body at all — the sibling's own `description` is already enough for whoever's task actually needs it to find it. If a genuine selection-time misfire ever turns up — observed, not speculated, per [the best-practices doc](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)'s own evaluation-driven approach — fix it by sharpening the *positive* language in the `description` first.
 
 ## Forbidden: scaffolded trigger text
 

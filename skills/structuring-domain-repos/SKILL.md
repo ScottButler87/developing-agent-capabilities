@@ -1,12 +1,10 @@
 ---
 name: structuring-domain-repos
 license: CC-BY-SA-4.0
-description: Structures and publishes git repos of Claude Code skills — one repo per domain, one plugin per subdomain, plugin.json and marketplace.json layout, plugins/ subdirectories, cross-plugin dependencies, and discovery via a self-hosted or Anthropic's community marketplace. Use when creating a repo for a new domain (e.g. a new game), splitting a repo into multiple plugins, wiring up plugin.json or marketplace.json, or deciding how a plugin should be installable by others. Do not use for deciding where one specific new skill belongs (see placing-new-skills), for skill-writing conventions (see authoring-domain-skills), or for categorizing a specific new file's license or fixing a `reuse lint` failure (see licensing-new-files).
+description: Structures and publishes git repos of Claude Code skills — one repo per domain, one plugin per subdomain, plugin.json and marketplace.json layout, plugins/ subdirectories, cross-plugin dependencies, and discovery via a self-hosted or Anthropic's community marketplace. Use when creating a repo for a new domain (e.g. a new game), splitting a repo into multiple plugins, wiring up plugin.json or marketplace.json, or deciding how a plugin should be installable by others.
 ---
 
 # Structuring domain repos
-
-Scope: the structural model for how a domain's knowledge is organized, and the mechanics of bootstrapping/growing a domain repo. For the decision of where one specific new piece of knowledge belongs, see [placing-new-skills](../placing-new-skills/SKILL.md). For conventions on writing an individual skill's content, see [authoring-domain-skills](../authoring-domain-skills/SKILL.md) and [the Skill authoring best practices doc](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). For categorizing a specific new file's license or fixing a `reuse lint` failure, see [licensing-new-files](../licensing-new-files/SKILL.md).
 
 ## The model
 

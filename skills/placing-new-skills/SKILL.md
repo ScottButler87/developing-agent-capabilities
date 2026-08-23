@@ -1,12 +1,10 @@
 ---
 name: placing-new-skills
 license: CC-BY-SA-4.0
-description: Decides where a new skill belongs before it's written — an existing plugin, a new plugin in the same repo, a new domain repo, a domain repo someone else already maintains, or a shared plugin two others depend on — and whether it should be a skill at all rather than CLAUDE.md or a project's own .claude/skills/. Use when the user wants to capture knowledge as a skill and hasn't yet settled which repo or plugin it belongs in, or when deciding whether new knowledge needs its own skill versus extending an existing one. Do not use once placement is already settled and the task is writing or reviewing the skill's actual content — see authoring-domain-skills.
+description: Decides where a new skill belongs before it's written — an existing plugin, a new plugin in the same repo, a new domain repo, a domain repo someone else already maintains, or a shared plugin two others depend on — and whether it should be a skill at all rather than CLAUDE.md or a project's own .claude/skills/. Use when the user wants to capture knowledge as a skill and hasn't yet settled which repo or plugin it belongs in, or when deciding whether new knowledge needs its own skill versus extending an existing one.
 ---
 
 # Placing new skills
-
-Scope: the decision procedure for where a new skill goes, run before authoring it. For the underlying model (domain/subdomain/plugin/marketplace/dependency mechanics) and how to bootstrap or grow a domain repo once one is actually needed, see [structuring-domain-repos](../structuring-domain-repos/SKILL.md). Once placement is decided, for how to actually write it well see [authoring-domain-skills](../authoring-domain-skills/SKILL.md) and [the Skill authoring best practices doc](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 ## Decision procedure
 
