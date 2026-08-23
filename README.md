@@ -1,8 +1,11 @@
-# developing-ai-capabilities
+# developing-agent-capabilities
 
-Conventions for organizing Claude Code skills into git repos: one repo per
-domain, one plugin per subdomain, self-contained skills, local-first
-iteration, and optional public discovery. Domains are separate repos
+Conventions for organizing agent-consumable capabilities into git repos:
+one repo per domain, one plugin per subdomain, self-contained skills and
+tooling, local-first iteration, and optional public discovery. A "skill"
+here can be either a step-by-step procedure or background/orientation
+knowledge; a subdomain's plugin can also bundle MCP-wrapped tooling
+alongside its skills, not skills alone. Domains are separate repos
 deliberately, so each can eventually be owned by its own community of
 contributors, independent of any other domain's. Not affiliated with or
 endorsed by Anthropic.
@@ -14,21 +17,23 @@ Persistent install, no marketplace needed: symlink this repo into your
 skills directory:
 
 ```
-ln -s <path-to-this-repo> ~/.claude/skills/developing-ai-capabilities
+ln -s <path-to-this-repo> ~/.claude/skills/developing-agent-capabilities
 ```
 
 It then loads automatically in every session as
-`developing-ai-capabilities@skills-dir`. For a one-off session without
+`developing-agent-capabilities@skills-dir`. For a one-off session without
 touching `~/.claude/skills/`, use `claude --plugin-dir <path-to-this-repo>`
 instead.
 
 See `skills/*/SKILL.md` for what's here — each skill's own `description`
 says what it does and when to use it; that's also the exact field Claude
 matches against for discovery, so it's kept accurate deliberately and isn't
-re-summarized here. Skills follow the open
-[agentskills.io](https://agentskills.io/specification) format, so they're
-already portable to any compatible agent platform, not just Claude Code —
-the plugin/marketplace layer on top is Claude-Code-specific.
+re-summarized here. The capabilities themselves follow open, cross-platform
+standards — Skills use the [agentskills.io](https://agentskills.io/specification)
+format, tooling uses the [Model Context Protocol](https://modelcontextprotocol.io/)
+— so they're portable to any compatible agent platform, not just Claude
+Code. Claude Code's plugin/marketplace layer on top is this repo's current
+distribution mechanism, not a property of the content itself.
 
 Discovery posture for *this* repo: **Deferred.** No `marketplace.json` yet;
 load with the skills-directory symlink or `--plugin-dir`. Not actively

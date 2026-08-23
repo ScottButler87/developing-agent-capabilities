@@ -14,6 +14,6 @@ merely references without bundling.
 
 ## Reporting
 
-No GitHub repo exists for this project yet (see the Discovery posture in
-`README.md`), so there's no private-advisory mechanism to report through.
-Once one does, this file will name it.
+This repo doesn't have a dedicated private-advisory channel yet — open a
+GitHub issue. If something shouldn't be public before a fix ships, say so
+in the issue title without detail and ask for a private follow-up.
