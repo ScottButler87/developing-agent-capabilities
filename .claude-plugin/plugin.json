@@ -1,0 +1,9 @@
+{
+  "name": "developing-ai-capabilities",
+  "description": "Conventions and scaffolding for organizing Claude Code skills into domain repos — repo/subdomain/skill structure, cross-subdomain dependencies, and where new knowledge belongs.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Scott"
+  },
+  "license": "AGPL-3.0-or-later AND CC-BY-SA-4.0"
+}

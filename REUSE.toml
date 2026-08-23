@@ -1,0 +1,26 @@
+version = 1
+SPDX-PackageName = "developing-ai-capabilities"
+
+# Prose/content: skill instructions, README, docs.
+[[annotations]]
+path = ["**.md"]
+SPDX-FileCopyrightText = "2026 Scott <scottbutler87@gmail.com>"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# Structural plugin/marketplace manifests and repo config — by location,
+# not extension. JSON/YAML/TOML can just as easily encode domain data
+# (e.g. an extracted game-data file) as structure, so only paths we
+# actually know are structural get swept in here, not every file of
+# these formats.
+[[annotations]]
+path = ["**/.claude-plugin/**", "REUSE.toml", ".gitignore", ".gitattributes"]
+SPDX-FileCopyrightText = "2026 Scott <scottbutler87@gmail.com>"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+# Executable code and repo tooling. Path-based for tooling directories
+# (any file type inside is tooling by virtue of location); extension-based
+# only for languages that are never used to encode plain data/content.
+[[annotations]]
+path = ["scripts/**", ".github/**", "**.py", "**.sh", "**.js", "**.ts"]
+SPDX-FileCopyrightText = "2026 Scott <scottbutler87@gmail.com>"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
