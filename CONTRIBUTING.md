@@ -1,8 +1,13 @@
 # Contributing
 
-This is a single-subdomain domain repo (see
-[structuring-domain-repos](skills/structuring-domain-repos/SKILL.md)) — one
-plugin, one place new skills go: `skills/<name>/SKILL.md`.
+Skill-authoring, placement, and licensing conventions here apply to any
+domain repo built on this system — another repo's CONTRIBUTING.md can
+point here for these rather than repeating them, and only needs to state
+what's specific to its own domain.
+
+This particular repo is itself single-subdomain — see
+[structuring-domain-repos](skills/structuring-domain-repos/SKILL.md) for
+what that means.
 
 ## Adding or changing a skill
 
