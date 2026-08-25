@@ -23,6 +23,24 @@ A redirect belongs inline, at the specific point in the body where the need for 
 
 Never generate a "when to use" section by grammatically stuffing the skill's own name into a template sentence ("When deploying or configuring **extracting game phase data** capabilities..."). That says nothing and occupies the exact field Claude matches against for discovery. A skill with a stub trigger is worse than no skill — write the real answer or don't ship the skill yet.
 
+## Write current fact, not session narrative
+
+A skill's body should read as what's true right now — what to use, what
+to avoid, and the specific reason a claim is trustworthy — not the story
+of how it was discovered. Investigation narrative, corrected-mistake
+retrospectives ("an earlier version of this claimed X; that was wrong"),
+and the results of a specific validation run ("an agent tested this and
+it worked") belong in the commit that made the change, not in the file
+itself: a future maintainer reviewing history gets real value from that
+context, while a consuming agent loading the skill gets none — it pays
+the token cost on every load for information that helps it do nothing.
+This turned up as a repeated mistake in at least one downstream domain
+repo, specifically in SOP/runbook-style skills, where narrating "we
+tested this and it worked" reads as a natural sentence to write but adds
+nothing a reader can act on. The test to apply: would removing this
+sentence change what a consuming agent does? If not, it belongs in the
+commit message instead.
+
 ## Custom frontmatter goes under `metadata:`
 
 The [agentskills.io](https://agentskills.io/specification) open standard defines exactly six frontmatter fields: `name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools`. `claude plugin validate --strict` does not currently reject an unknown top-level key (verified — it passes silently), so this is a discipline to follow, not something the pre-PR check catches for you. Every skill here should set `license` (`CC-BY-SA-4.0` for a normal skill) — it's the one piece of licensing information that survives a skill directory being copied out of its plugin wrapper onto another platform; `REUSE.toml` only covers files that stay inside this repo. If a skill's own supporting files (`references/`, `scripts/`) need their own categorization beyond this, see [licensing-new-files](../licensing-new-files/SKILL.md). Anything else this system wants to track (game version, patch number, source-wiki link) nests under `metadata:` as an arbitrary string map, not as a new top-level key. Free to get right from the start; expensive to retrofit across many files later.
