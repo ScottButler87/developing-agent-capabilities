@@ -26,6 +26,9 @@ what that means.
 
 - `claude plugin validate --strict .`
 - `reuse lint`
+- Audit the content per [authoring-domain-skills](skills/authoring-domain-skills/SKILL.md)'s
+  "Audit before shipping" — the two commands above check structure and
+  licensing, not whether the skill's claims are actually true.
 
 ## Licensing your contribution
 
