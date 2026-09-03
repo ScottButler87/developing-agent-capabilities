@@ -105,6 +105,10 @@ The [agentskills.io](https://agentskills.io/specification) open standard defines
 
 If a `metadata:` field is meant to be structured/machine-checked (an ID from an external taxonomy, a version range), CI must validate it against a canonical list, or it shouldn't be a structured field at all — an unvalidated structured field is worse than prose, because it looks machine-readable and gets trusted downstream without actually being checked.
 
+## A colon-space inside `description` silently breaks the whole frontmatter
+
+`description` is a long, unquoted, free-flowing YAML string, and free-flowing prose eventually contains "word: word" somewhere in the sentence — a colon immediately followed by a space. YAML reads that as a nested mapping key, not plain text, and the frontmatter fails to parse. The failure is silent at a glance: the file still opens and reads fine, but at runtime the skill loads with every frontmatter field dropped, including `name` and `license`. This isn't a one-time mistake to catch once — it's a recurring class of bug, easy to reintroduce on the very next edit to the same field (including a fix for a *different* problem in the same sentence). Run `claude plugin validate --strict` after every edit that touches a `description`, not just after the first draft, and prefer `--` or a rephrase over a mid-sentence colon when writing one.
+
 ## Bundle a script only when the skill actually needs one
 
 Don't add `scripts/`/`references/` to a skill by default just because the format allows it. An unused or stub script sitting in a skill's directory drifts out of sync with the skill's own body over time and adds nothing a human or agent can act on — add supporting files only once the skill has a concrete, current reason for one.

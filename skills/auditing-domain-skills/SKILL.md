@@ -1,7 +1,7 @@
 ---
 name: auditing-domain-skills
 license: CC-BY-SA-4.0
-description: A catalog of failure modes that make it into domain-knowledge skills — unverified claims, unvalidated heuristics, silent-failure decoders and invariants, stale snapshot statistics, narrative residue, quietly narrowed rules, instance-only fixes, scope creep inside verification checks, uncorrected mechanical edit errors, unverified tooling-capability claims — plus the mindset for checking a skill against them and a standardized, actionable report format. Use whenever a domain skill's reference docs, scripts, or canonical data need a quality check, whether that's a one-off review, a repeated audit pass, or an independent-agent step another procedure delegates to.
+description: A catalog of failure modes that make it into domain-knowledge skills — unverified claims, unvalidated heuristics, silent-failure decoders and invariants, stale snapshot statistics, narrative residue, quietly narrowed rules, instance-only fixes, scope creep inside verification checks, uncorrected mechanical edit errors, unverified tooling-capability claims, cross-skill contradictions between two skills that each check out individually, and completeness claims that under-report real coverage — plus the mindset for checking a skill against them and a standardized, actionable report format. Use whenever a domain skill's reference docs, scripts, or canonical data need a quality check, whether that's a one-off review, a repeated audit pass, or an independent-agent step another procedure delegates to.
 ---
 
 # Auditing domain skills
@@ -26,6 +26,15 @@ Not every line needs individual checking. Prioritize claims that are
 checkable against a primary source at all (a number, a field name, a
 cross-reference, a tool's claimed output) over prose that's inherently a
 judgment call.
+
+When the target content's own primary source is itself rendered
+documentation for a live, evolving system, and a deeper ground truth
+also exists — the actual source code, a running instance of the tool,
+an API you can call — check against that deeper source rather than
+stopping at "this matches what the docs say." Rendered docs go stale in
+ways their own authors don't always catch; re-reading them more
+carefully doesn't surface a case where the docs themselves are wrong.
+Content faithfully transcribed from a wrong doc page is still wrong.
 
 ## Failure modes
 
@@ -200,6 +209,48 @@ mistaken for the edit being correct.
 - **Why it matters:** this failure mode is purely mechanical and easy to
   introduce even when the substantive content is right — it's cheap to
   catch by re-reading and expensive to leave for a reader to trip over.
+
+### Cross-skill contradiction
+
+Two skills each check out fine individually against their own primary
+source, yet assert incompatible mechanisms for a fact they both touch —
+e.g. one skill's "the file isn't included in the package without step
+X" versus a sibling it cross-references having already established,
+with deeper verification, that the file is included either way and X
+changes a different property of it. Single-skill fact-checking doesn't
+surface this, because each half is independently true-to-its-own-source
+in isolation; only comparing the two claims against each other does.
+
+- **Fix:** whenever a skill cross-references a sibling for a mechanism
+  rather than restating it, open that sibling and check its actual
+  claim about the shared fact, not just that the link target resolves.
+  Where the two disagree, trust whichever has the stronger verification
+  (checked against source code, not just rendered docs; checked more
+  recently; checked more specifically) and correct the other to match.
+- **Why it matters:** cross-referencing instead of duplicating is the
+  right instinct for avoiding drift, but it only works if the two ends
+  of the reference actually agree — an unnoticed contradiction is worse
+  than duplication, because a reader has no way to tell which of two
+  disagreeing skills to trust, and the cross-reference itself implies
+  they were checked against each other when they weren't.
+
+### Completeness claims not matching actual coverage
+
+A skill's own scope statement ("what this doc-tree section covers and
+doesn't") silently under-reports real, on-topic material that exists
+and is simply out of that skill's own scope — handled elsewhere, or
+just missed. Fact-checking the claims that *are* present doesn't catch
+this, because the gap is in what's absent from the claim, not in
+anything stated incorrectly.
+
+- **Fix:** independently walk the actual source structure the skill
+  claims to summarize (a live nav tree, a directory listing, a table of
+  contents) and diff it against the skill's own completeness claim,
+  rather than only verifying each individual fact the skill does state.
+- **Why it matters:** a reader relying on a skill's stated scope to
+  decide whether they need to look further has no way to detect a
+  silent gap themselves — that's exactly what the completeness claim
+  was supposed to save them from checking.
 
 ## Writing the report
 
