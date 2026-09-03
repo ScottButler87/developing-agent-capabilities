@@ -92,9 +92,10 @@ prose-vs-prose comparison is the ceiling of what's checkable. Checking
 claims against an actual local source checkout (not just the rendered
 docs site) can surface real defects invisible to prose-vs-prose
 comparison: a documented C++ macro name that didn't exist in the actual
-header (the *official docs* had it wrong, not just the drafted skill),
-a draft's own claim about a function's behavior reversed after tracing
-an actual fall-through code path the docs never mentioned, and a
+header (the *official docs* had it wrong, not just the drafted skill), a
+function whose real behavior was the opposite of what its own one-line
+doc comment plainly implied (traced to a genuine missing `return`
+statement in the function itself, not a documentation typo), and a
 struct's real field list differing from what the docs page enumerated.
 None of these would have surfaced from re-reading the doc page more
 carefully, because the doc page itself was the thing that was wrong.
