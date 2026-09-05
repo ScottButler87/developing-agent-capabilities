@@ -100,6 +100,25 @@ struct's real field list differing from what the docs page enumerated.
 None of these would have surfaced from re-reading the doc page more
 carefully, because the doc page itself was the thing that was wrong.
 
+**A local checkout being real and being complete are different claims --
+verify both before trusting a specific file.** A repo can genuinely be
+what it claims (an official, sanctioned source) while still being mostly
+placeholder in the exact files an agent wants to cite. One project's
+"authoritative" game-engine checkout turned out to have real, current
+header declarations throughout (confirming the repo's own legitimacy),
+but out of nearly a thousand `.cpp` implementation files, all but a
+handful were auto-generated compiler-satisfying stubs with no actual
+logic in them at all -- and one of the few files with real logic had a
+commit history that never stated where that implementation came from,
+while a sibling file's real logic was explicitly attributed to a named
+maintainer and corroborated by the repo's own credits file. Declarations
+(headers, signatures, field lists) and implementation (function bodies)
+can have entirely different trust levels within the same checkout, and a
+file's presence and line count don't tell you which category it's in --
+check for auto-generation markers and attribution in commit history
+before citing a specific implementation as ground truth, rather than
+treating "it's real code, in the real repo" as settling the question.
+
 ## Failure modes specific to this scale
 
 These either don't come up at all when writing one or two skills by
