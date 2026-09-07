@@ -1,9 +1,9 @@
 ---
 name: orchestrating-large-scale-skill-extraction
 license: CC-BY-SA-4.0
-description: Running a fan-out/fan-in pipeline that turns one large documentation source (a whole doc site or doc-tree section) into many small skills -- clustering pages into skill-sized units before any drafting, batching parallel draft-and-audit agents, and the specific operational gotchas (spend-limit interruptions, a validation command's exit code getting masked by a pipe, a recurring frontmatter bug, cross-skill contradictions an audit needs to actively look for) that only surface at this scale. Use when a single source is large enough that one skill per source page would produce dozens of skills, and the boundaries between skills aren't obvious from the source's own table of contents.
+description: Running a fan-out/fan-in pipeline that turns one large documentation source (a whole doc site or doc-tree section) into many small skills -- clustering pages into skill-sized units before any drafting, batching parallel draft-and-audit agents, and the specific operational gotchas (a validation command's exit code getting masked by a pipe, a recurring frontmatter bug, cross-skill contradictions an audit needs to actively look for) that only surface at this scale. Use when a single source is large enough that one skill per source page would produce dozens of skills, and the boundaries between skills aren't obvious from the source's own table of contents.
 metadata:
-  derived-from-session: "satisfactory-agent-capabilities modding plugin, 2026-09, ~40 skills from docs.ficsit.app"
+  derived-from-session: "docs.ficsit.app Satisfactory modding docs extraction, 2026-09 (first and, so far, only run this skill has been distilled from)"
 ---
 
 # Orchestrating large-scale skill extraction
@@ -74,12 +74,26 @@ For each skill in the consolidated map:
    from silently absorbing a correction it wrote for itself into a
    commit whose message no longer says why the change was made.
 
-Batch this in groups of roughly five agents running in parallel per
-wave. That's large enough to make real throughput progress, and small
-enough that: one spend-limit interruption (see below) doesn't stall the
-whole pipeline waiting on a resume, and the orchestrator can actually
-track and react to each individual result rather than losing the thread
-across twenty simultaneous notifications.
+Batch this into waves rather than firing every agent at once. There's no
+single right wave size -- pick one per run based on what's actually
+binding:
+- **The orchestrator's own tracking capacity.** Losing track of which of
+  twenty simultaneous notifications belongs to which skill is a real
+  failure mode; a wave should stay small enough that each result can
+  actually be read and reacted to individually, not skimmed.
+- **Blast radius of a bad wave.** A problem shared across a wave (a bad
+  clustering assumption, a stale shared reference, a misread primary
+  source) is cheaper to catch and fix when it only affects a handful of
+  skills rather than the whole run.
+- **Dependency structure within the wave.** Skills that cross-reference
+  each other (see "stale cross-reference" below) are safer drafted in
+  different waves, or in the same wave with an explicit reconciliation
+  pass after, than assumed independent when they aren't.
+- **Whatever quota or capacity ceiling the environment actually
+  imposes** -- this varies by setup and isn't a property of the
+  extraction task itself, so check what applies before picking a
+  number rather than carrying one over from a previous run's
+  environment.
 
 ## Point verification at ground truth beyond the rendered docs, when it exists
 
@@ -100,24 +114,40 @@ struct's real field list differing from what the docs page enumerated.
 None of these would have surfaced from re-reading the doc page more
 carefully, because the doc page itself was the thing that was wrong.
 
-**A local checkout being real and being complete are different claims --
-verify both before trusting a specific file.** A repo can genuinely be
-what it claims (an official, sanctioned source) while still being mostly
-placeholder in the exact files an agent wants to cite. One project's
-"authoritative" game-engine checkout turned out to have real, current
-header declarations throughout (confirming the repo's own legitimacy),
-but out of nearly a thousand `.cpp` implementation files, all but a
-handful were auto-generated compiler-satisfying stubs with no actual
-logic in them at all -- and one of the few files with real logic had a
-commit history that never stated where that implementation came from,
-while a sibling file's real logic was explicitly attributed to a named
-maintainer and corroborated by the repo's own credits file. Declarations
-(headers, signatures, field lists) and implementation (function bodies)
-can have entirely different trust levels within the same checkout, and a
-file's presence and line count don't tell you which category it's in --
-check for auto-generation markers and attribution in commit history
-before citing a specific implementation as ground truth, rather than
-treating "it's real code, in the real repo" as settling the question.
+**A source being real and being uniformly trustworthy are different
+claims -- verify both before citing one specific part of it.** Large
+sources routinely mix hand-authored, currently-maintained content with
+mechanically-generated, superseded, or placeholder content, and the two
+kinds can be structurally indistinguishable at a glance -- same file
+type, similar length, same directory. A source's overall legitimacy
+(it's the real, sanctioned repo/site/corpus) says nothing about which
+category any specific part of it falls into. Before treating one part as
+verified ground truth, check what *kind* of content that specific part
+is, using whatever provenance signal that source format actually offers
+-- a generator banner, a "stub"/"auto-generated"/"deprecated" marker,
+commit-authorship patterns, an explicit attribution note -- and treat the
+*absence* of such a signal as inconclusive, not as proof of authenticity.
+This isn't specific to source code: a Python checkout can have `.pyi`
+stub files that are hand-maintained in some packages and mechanically
+stale in others; a docs corpus can have pages that are current prose
+alongside auto-generated API-reference stubs nobody has filled in; a
+legal corpus can mix in-force text with superseded clauses retained for
+history. The check is the same shape every time -- don't let a source's
+overall realness stand in for checking the specific part.
+
+One worked example, from a C++ game-engine checkout: it had real,
+current header declarations throughout (confirming the repo's own
+legitimacy), but out of nearly a thousand `.cpp` implementation files,
+all but a handful were auto-generated compiler-satisfying stubs with no
+actual logic in them at all -- and one of the few files with real logic
+had a commit history that never stated where that implementation came
+from, while a sibling file's real logic was explicitly attributed to a
+named maintainer and corroborated by the repo's own credits file.
+Declarations (headers, signatures, field lists) and implementation
+(function bodies) had entirely different trust levels within the same
+checkout, and a file's presence and line count didn't tell you which
+category it was in -- only checking for auto-generation markers and
+attribution in commit history did.
 
 ## Failure modes specific to this scale
 
@@ -168,17 +198,6 @@ to be worth naming explicitly.
   the actual source (a live nav tree, a directory listing) and diff it
   against the skill's own completeness claim, not just verify each
   individual fact in isolation.
-- **A background agent's own resumability is the resume path for a
-  spend-limit interruption, not a fresh restart.** When an agent's task
-  notification reports an API spend-limit error mid-task, its own
-  transcript already holds whatever partial work it did -- send it a
-  short "you were interrupted, not failed; the limit should be reset
-  now, please continue" message addressed to its own agent id/name
-  rather than launching a brand-new agent with the same prompt,
-  which redoes completed work and burns more of the same limit that
-  just tripped. No need to poll for the reset window; the interruption
-  message states when it resets, and sending the resume message after
-  that point just works.
 
 ## Decide the attribution/licensing posture up front, not as a final cleanup pass
 
@@ -194,6 +213,18 @@ one actually drew from after the fact, which is far more error-prone
 and expensive than recording it as each skill is drafted. If a
 clustering map already exists (see above), it's the natural place to
 carry the source-page mapping forward into the drafting step.
+
+`REUSE.toml` is the authoritative record of which license applies to
+which file, but a skill's own frontmatter `license:` field is a second,
+independent copy of that fact for a reader who only has the skill
+folder -- copied out of the repo, `REUSE.toml` doesn't travel with it.
+When a source's license means a skill needs something other than this
+repo's plain default, set both at once as part of drafting that skill,
+not as a follow-up pass: write the combined SPDX expression directly
+into the skill's `license:` field (e.g.
+`license: GPL-3.0-or-later AND CC-BY-SA-4.0`) so there's one same string
+in both places rather than two independently-maintained descriptions of
+the same fact that can silently drift apart.
 
 ## Preserve the clustering artifacts and audit findings somewhere durable
 

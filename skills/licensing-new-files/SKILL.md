@@ -31,3 +31,17 @@ Ask what the file *is*, not what format it's serialized in. File extension is no
 4. Re-run `reuse lint` to confirm, with real file content if this is a test.
 
 This repo's own [`REUSE.toml`](../../REUSE.toml) is the current worked example.
+
+## A skill's own `license:` frontmatter field needs the same category, kept in sync by hand
+
+`REUSE.toml` is the authoritative record for this repo, but it doesn't
+travel if a skill folder is copied out onto another platform — the
+[agent skills spec](https://agentskills.io/specification) gives skills
+their own `license:` frontmatter field precisely for that case. Treat it
+as a second copy of the same categorization decision, not a separate one:
+when step 3 above assigns a skill's files something other than this
+repo's plain default (e.g. the combined `GPL-3.0-or-later AND
+CC-BY-SA-4.0` expression used for content synthesized from a copyleft
+source), set the skill's own `license:` field to that identical SPDX
+expression string in the same pass, rather than leaving it on the
+default and letting the two fall out of sync.
