@@ -30,6 +30,12 @@ jobs:
       - name: Check REUSE compliance
         run: reuse lint
 
+      # This repo's own logic, not reuse's or claude's -- red-test it
+      # directly rather than only exercising it against real skills.
+      - name: Test sync-skill-license.py
+        run: python3 -m unittest test_sync_skill_license -v
+        working-directory: skills/licensing-new-files/scripts
+
       # Local script, not curled -- this repo IS the source of truth
       # sync-skill-license.py syncs other repos against.
       - name: "Check skill license: frontmatter matches REUSE.toml"

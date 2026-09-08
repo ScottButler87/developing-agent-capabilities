@@ -94,7 +94,7 @@ def sync_one(path: Path, license_map: dict[str, str], repo_root: Path, check_onl
     """Returns (message, is_drift_or_error)."""
     rel = path.resolve().relative_to(repo_root).as_posix()
     license_expr = license_map.get(rel)
-    if not license_expr or license_expr == "NOASSERTION":
+    if not license_expr or license_expr in ("NOASSERTION", "NONE"):
         return f"SKIP {rel}: reuse reports no concluded license -- check REUSE.toml coverage", True
 
     text = path.read_text()
@@ -127,13 +127,19 @@ def main() -> None:
 
     if not args.files and not args.all:
         ap.error("give one or more SKILL.md paths, or --all")
+    if args.files and args.all:
+        ap.error("--all cannot be combined with explicit file paths")
 
     anchor = args.files[0] if args.files else Path.cwd()
     repo_root = find_repo_root(anchor)
 
     targets = args.files if args.files else sorted(repo_root.rglob("SKILL.md"))
 
-    license_map = get_license_map(repo_root)
+    try:
+        license_map = get_license_map(repo_root)
+    except subprocess.CalledProcessError as e:
+        sys.exit(f"error: `reuse spdx` failed (exit {e.returncode}):\n{e.stderr}")
+
     exit_code = 0
     for f in targets:
         try:
