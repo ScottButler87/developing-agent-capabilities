@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate plugin manifest
+        run: claude plugin validate --strict .
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install reuse
+        run: pip install reuse
+
+      - name: Check REUSE compliance
+        run: reuse lint
+
+      # Local script, not curled -- this repo IS the source of truth
+      # sync-skill-license.py syncs other repos against.
+      - name: "Check skill license: frontmatter matches REUSE.toml"
+        run: python3 skills/licensing-new-files/scripts/sync-skill-license.py --all --check
