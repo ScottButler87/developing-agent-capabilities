@@ -215,16 +215,15 @@ clustering map already exists (see above), it's the natural place to
 carry the source-page mapping forward into the drafting step.
 
 `REUSE.toml` is the authoritative record of which license applies to
-which file, but a skill's own frontmatter `license:` field is a second,
-independent copy of that fact for a reader who only has the skill
-folder -- copied out of the repo, `REUSE.toml` doesn't travel with it.
-When a source's license means a skill needs something other than this
-repo's plain default, set both at once as part of drafting that skill,
-not as a follow-up pass: write the combined SPDX expression directly
-into the skill's `license:` field (e.g.
-`license: GPL-3.0-or-later AND CC-BY-SA-4.0`) so there's one same string
-in both places rather than two independently-maintained descriptions of
-the same fact that can silently drift apart.
+which file, but a skill's own frontmatter `license:` field is a second
+copy of that fact for a reader who only has the skill folder -- copied
+out of the repo, `REUSE.toml` doesn't travel with it. Don't hand-type
+that second copy: when a source's license means a skill needs something
+other than this repo's plain default, add it to `REUSE.toml` as part of
+drafting that skill, then run
+[licensing-new-files](../licensing-new-files/SKILL.md)'s
+`sync-skill-license.py` against it so the frontmatter is derived from
+`REUSE.toml`, not independently retyped and free to drift from it.
 
 ## Preserve the clustering artifacts and audit findings somewhere durable
 

@@ -32,16 +32,31 @@ Ask what the file *is*, not what format it's serialized in. File extension is no
 
 This repo's own [`REUSE.toml`](../../REUSE.toml) is the current worked example.
 
-## A skill's own `license:` frontmatter field needs the same category, kept in sync by hand
+## A skill's own `license:` frontmatter field must match REUSE.toml — sync it with the script, don't hand-type it
 
 `REUSE.toml` is the authoritative record for this repo, but it doesn't
 travel if a skill folder is copied out onto another platform — the
 [agent skills spec](https://agentskills.io/specification) gives skills
-their own `license:` frontmatter field precisely for that case. Treat it
-as a second copy of the same categorization decision, not a separate one:
-when step 3 above assigns a skill's files something other than this
-repo's plain default (e.g. the combined `GPL-3.0-or-later AND
-CC-BY-SA-4.0` expression used for content synthesized from a copyleft
-source), set the skill's own `license:` field to that identical SPDX
-expression string in the same pass, rather than leaving it on the
-default and letting the two fall out of sync.
+their own `license:` frontmatter field precisely for that case. Don't
+maintain it as a second, independently-typed copy of the categorization
+decision in step 3 above — that's exactly the kind of two-places-with-one-
+fact setup that drifts silently. Instead, after changing `REUSE.toml` (a
+new annotation block, or adding a path to an existing one), run
+[`scripts/sync-skill-license.py`](scripts/sync-skill-license.py) against
+the affected skill(s) — it asks the `reuse` CLI itself what license each
+file concludes to (not a hand-rolled glob matcher, so it can't disagree
+with what `reuse lint` will check) and rewrites the frontmatter
+`license:` line to match:
+
+```
+sync-skill-license.py path/to/skills/some-skill/SKILL.md   # sync one skill
+sync-skill-license.py --all                                # sync every SKILL.md in the repo
+sync-skill-license.py --all --check                        # report drift only, write nothing, exit 1 if any found
+```
+
+It's safe to run from multiple agents at once, including against
+different files in the same wave: each target file is written via a
+write-temp-then-atomic-rename in its own directory, so a concurrent run
+touching a *different* file never interferes. Run `--check` as a gate
+alongside `claude plugin validate --strict` and `reuse lint` before
+committing any skill whose license isn't the repo's plain default.
