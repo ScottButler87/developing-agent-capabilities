@@ -32,11 +32,21 @@ def run_script(*args, cwd=None):
 
 
 class FixtureRepo:
-    """A throwaway directory with a REUSE.toml and some SKILL.md files."""
+    """A throwaway directory with a REUSE.toml and some SKILL.md files.
 
-    def __init__(self, reuse_toml: str):
+    `licenses` creates a placeholder LICENSES/<id>.txt for each id given --
+    `reuse lint-file` requires the text to actually exist, unlike `reuse
+    spdx`, which will happily conclude a license whose text is missing.
+    """
+
+    def __init__(self, reuse_toml: str, licenses: tuple[str, ...] = ()):
         self.root = Path(tempfile.mkdtemp(prefix="sync-skill-license-test-"))
         (self.root / "REUSE.toml").write_text(reuse_toml)
+        if licenses:
+            licenses_dir = self.root / "LICENSES"
+            licenses_dir.mkdir()
+            for lic in licenses:
+                (licenses_dir / f"{lic}.txt").write_text("placeholder license text\n")
 
     def write_skill(self, rel_path: str, content: str) -> Path:
         p = self.root / rel_path
@@ -79,7 +89,7 @@ body text
 
 class SyncSkillLicenseTests(unittest.TestCase):
     def setUp(self):
-        self.repo = FixtureRepo(DEFAULT_REUSE_TOML)
+        self.repo = FixtureRepo(DEFAULT_REUSE_TOML, licenses=("CC-BY-SA-4.0",))
         self.addCleanup(self.repo.cleanup)
 
     # --- core behavior -----------------------------------------------
@@ -114,7 +124,7 @@ class SyncSkillLicenseTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_combined_license_expression_is_written_in_full(self):
-        repo = FixtureRepo(COMBINED_REUSE_TOML)
+        repo = FixtureRepo(COMBINED_REUSE_TOML, licenses=("CC-BY-SA-4.0", "GPL-3.0-or-later"))
         self.addCleanup(repo.cleanup)
         skill = repo.write_skill("skills/special/SKILL.md", VALID_SKILL.format(license="CC-BY-SA-4.0"))
         result = run_script(skill)
@@ -146,7 +156,43 @@ class SyncSkillLicenseTests(unittest.TestCase):
         result = run_script(skill)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("SKIP", result.stdout)
-        self.assertIn("no concluded license", result.stdout)
+        self.assertIn("reuse lint-file failed", result.stdout)
+        self.assertEqual(skill.read_text(), VALID_SKILL.format(license="CC-BY-SA-4.0"))
+
+    def test_missing_license_text_is_caught_even_though_spdx_still_concludes_a_license(self):
+        # reuse spdx alone would happily conclude CC-BY-SA-4.0 here (it
+        # doesn't check that LICENSES/ actually has the text) -- this is
+        # exactly the gap folding in lint-file closes.
+        repo = FixtureRepo(DEFAULT_REUSE_TOML)  # note: no licenses=(...) -- LICENSES/ is empty
+        self.addCleanup(repo.cleanup)
+        original = VALID_SKILL.format(license="wrong-value")
+        skill = repo.write_skill("skills/foo/SKILL.md", original)
+        result = run_script(skill)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("SKIP", result.stdout)
+        self.assertIn("reuse lint-file failed", result.stdout)
+        self.assertEqual(skill.read_text(), original, "must not sync a license whose text file doesn't exist")
+
+    def test_lint_failure_on_one_file_does_not_block_a_clean_sibling_in_the_same_batch(self):
+        # Only skills/good is covered by REUSE.toml -- skills/bad is a
+        # genuine reuse lint-file failure (no annotation matches it at all),
+        # exercising the new batched-lint pre-filter specifically, not the
+        # pre-existing missing-frontmatter path.
+        repo = FixtureRepo(
+            "version = 1\nSPDX-PackageName = \"fixture\"\n"
+            "[[annotations]]\npath = [\"skills/good/**\"]\n"
+            "SPDX-FileCopyrightText = \"Test\"\nSPDX-License-Identifier = \"CC-BY-SA-4.0\"\n",
+            licenses=("CC-BY-SA-4.0",),
+        )
+        self.addCleanup(repo.cleanup)
+        repo.write_skill("skills/bad/SKILL.md", VALID_SKILL.format(license="whatever"))
+        repo.write_skill("skills/good/SKILL.md", VALID_SKILL.format(license="wrong"))
+        result = run_script("--all", cwd=repo.root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)  # bad file makes the run fail...
+        self.assertIn("SKIP", result.stdout)
+        self.assertIn("reuse lint-file failed", result.stdout)
+        self.assertIn("SET", result.stdout)  # ...but the good one still got processed
+        self.assertIn("license: CC-BY-SA-4.0", repo.read("skills/good/SKILL.md"))
 
     def test_quoted_value_is_treated_as_different_from_unquoted(self):
         # Documents actual behavior: the comparison is a raw string match,

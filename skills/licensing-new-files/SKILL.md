@@ -43,10 +43,14 @@ decision in step 3 above — that's exactly the kind of two-places-with-one-
 fact setup that drifts silently. Instead, after changing `REUSE.toml` (a
 new annotation block, or adding a path to an existing one), run
 [`scripts/sync-skill-license.py`](scripts/sync-skill-license.py) against
-the affected skill(s) — it asks the `reuse` CLI itself what license each
-file concludes to (not a hand-rolled glob matcher, so it can't disagree
-with what `reuse lint` will check) and rewrites the frontmatter
-`license:` line to match:
+the affected skill(s). One script covers the whole per-skill licensing
+job, so there's only one thing to run: it first checks the file itself
+against `reuse lint-file` (catches a gap `reuse spdx` alone would miss —
+a file can "conclude" a license just fine even when that license's text
+is missing from `LICENSES/`), and only for files that pass that, asks
+`reuse spdx` what license each one concludes to (not a hand-rolled glob
+matcher, so it can't disagree with what whole-repo `reuse lint` checks)
+and rewrites the frontmatter `license:` line to match:
 
 ```
 sync-skill-license.py path/to/skills/some-skill/SKILL.md   # sync one skill
