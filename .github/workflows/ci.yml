@@ -32,11 +32,13 @@ jobs:
 
       # This repo's own logic, not reuse's or claude's -- red-test it
       # directly rather than only exercising it against real skills.
-      - name: Test sync-skill-license.py
-        run: python3 -m unittest test_sync_skill_license -v
+      - name: Test license scripts
+        run: python3 -m unittest test_license_scripts -v
         working-directory: skills/licensing-new-files/scripts
 
       # Local script, not curled -- this repo IS the source of truth
-      # sync-skill-license.py syncs other repos against.
+      # audit-skill-licensing.py syncs other repos against. Read-only,
+      # whole repo by default -- see the script's own docstring for why
+      # this is a different entry point from sync-skill-license.py.
       - name: "Check skill license: frontmatter matches REUSE.toml"
-        run: python3 skills/licensing-new-files/scripts/sync-skill-license.py --all --check
+        run: python3 skills/licensing-new-files/scripts/audit-skill-licensing.py

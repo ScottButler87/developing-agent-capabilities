@@ -32,7 +32,7 @@ Ask what the file *is*, not what format it's serialized in. File extension is no
 
 This repo's own [`REUSE.toml`](../../REUSE.toml) is the current worked example.
 
-## A skill's own `license:` frontmatter field must match REUSE.toml — sync it with the script, don't hand-type it
+## A skill's own `license:` frontmatter field must match REUSE.toml — sync it with a script, don't hand-type it
 
 `REUSE.toml` is the authoritative record for this repo, but it doesn't
 travel if a skill folder is copied out onto another platform — the
@@ -40,27 +40,39 @@ travel if a skill folder is copied out onto another platform — the
 their own `license:` frontmatter field precisely for that case. Don't
 maintain it as a second, independently-typed copy of the categorization
 decision in step 3 above — that's exactly the kind of two-places-with-one-
-fact setup that drifts silently. Instead, after changing `REUSE.toml` (a
-new annotation block, or adding a path to an existing one), run
-[`scripts/sync-skill-license.py`](scripts/sync-skill-license.py) against
-the affected skill(s). One script covers the whole per-skill licensing
-job, so there's only one thing to run: it first checks the file itself
-against `reuse lint-file` (catches a gap `reuse spdx` alone would miss —
-a file can "conclude" a license just fine even when that license's text
-is missing from `LICENSES/`), and only for files that pass that, asks
-`reuse spdx` what license each one concludes to (not a hand-rolled glob
-matcher, so it can't disagree with what whole-repo `reuse lint` checks)
-and rewrites the frontmatter `license:` line to match:
+fact setup that drifts silently.
 
-```
-sync-skill-license.py path/to/skills/some-skill/SKILL.md   # sync one skill
-sync-skill-license.py --all                                # sync every SKILL.md in the repo
-sync-skill-license.py --all --check                        # report drift only, write nothing, exit 1 if any found
-```
+Two scripts share this job, deliberately split by caller rather than one
+script trying to serve both: an agent that just wrote or edited a skill
+wants it *fixed*, now; CI auditing the whole repo must never write
+anything on its own. Both check the same thing per file — `reuse
+lint-file` first (catches a gap `reuse spdx` alone would miss: a file
+can "conclude" a license just fine even when that license's text is
+missing from `LICENSES/`), then whether the frontmatter already matches
+what `reuse spdx` concludes from `REUSE.toml` — they only differ in
+scope and whether a fix gets written.
 
-It's safe to run from multiple agents at once, including against
-different files in the same wave: each target file is written via a
-write-temp-then-atomic-rename in its own directory, so a concurrent run
-touching a *different* file never interferes. Run `--check` as a gate
-alongside `claude plugin validate --strict` and `reuse lint` before
-committing any skill whose license isn't the repo's plain default.
+- **[`scripts/sync-skill-license.py`](scripts/sync-skill-license.py)** —
+  agent-facing. Run this against the skill(s) you just touched, right
+  after changing `REUSE.toml` (a new annotation block, or a path added
+  to an existing one). Defaults to writing the fix; `--check` previews
+  without writing. Takes explicit file paths only — no `--all`, this
+  isn't a repo-wide sweep:
+  ```
+  sync-skill-license.py path/to/skills/some-skill/SKILL.md
+  sync-skill-license.py --check path/to/skills/some-skill/SKILL.md
+  ```
+- **[`scripts/audit-skill-licensing.py`](scripts/audit-skill-licensing.py)**
+  — CI-facing. Read-only with no flag that changes that — there's no
+  write path to accidentally trigger. Defaults to every `SKILL.md` under
+  the repo root:
+  ```
+  audit-skill-licensing.py
+  ```
+
+Both are safe to run from multiple agents at once, including against
+different files in the same wave: each target file `sync-skill-license.py`
+writes goes through a write-temp-then-atomic-rename in its own directory,
+so a concurrent run touching a *different* file never interferes. Wire
+`audit-skill-licensing.py` into CI alongside `claude plugin validate
+--strict` and `reuse lint`.
