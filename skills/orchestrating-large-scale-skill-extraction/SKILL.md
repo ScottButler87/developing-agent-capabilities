@@ -2,8 +2,6 @@
 name: orchestrating-large-scale-skill-extraction
 license: CC-BY-SA-4.0
 description: Running a fan-out/fan-in pipeline that turns one large documentation source (a whole doc site or doc-tree section) into many small skills -- clustering pages into skill-sized units before any drafting, batching parallel draft-and-audit agents, and the specific operational gotchas (a validation command's exit code getting masked by a pipe, a recurring frontmatter bug, cross-skill contradictions an audit needs to actively look for) that only surface at this scale. Use when a single source is large enough that one skill per source page would produce dozens of skills, and the boundaries between skills aren't obvious from the source's own table of contents.
-metadata:
-  derived-from-session: "docs.ficsit.app Satisfactory modding docs extraction, 2026-09 (first and, so far, only run this skill has been distilled from)"
 ---
 
 # Orchestrating large-scale skill extraction
@@ -16,6 +14,15 @@ This skill is for the layer above: how to partition the source, how to
 run dozens of drafting/auditing agents without losing track of any of
 them, and the specific failure modes that only show up once the scale
 passes "a handful of skills."
+
+This playbook so far reflects one real run of this pipeline (a
+docs.ficsit.app extraction, 2026-09) -- treat any example below with a
+specific number, tool, or language attached as one illustration of a
+general point, not as the general point itself, and generalize before
+applying it somewhere the specifics obviously don't fit. A skill run
+through this same pipeline against a second, unrelated source is the
+kind of change that would be worth folding back in here as a second
+data point.
 
 ## Cluster before drafting, and do the clustering itself as fan-out/fan-in
 
